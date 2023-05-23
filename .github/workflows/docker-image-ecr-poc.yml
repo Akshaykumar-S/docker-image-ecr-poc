@@ -27,8 +27,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: AKIAZGA2GYFJZSDZMP75
+          aws-secret-access-key: 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
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Enable image scanning in ECR
