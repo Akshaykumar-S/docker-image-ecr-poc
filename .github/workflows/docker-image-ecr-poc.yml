@@ -19,8 +19,10 @@ jobs:
       - name: Build and tag Docker image
         run: |
           docker buildx create --use
-          docker buildx build --push --tag docker-image .
+          docker buildx build --push --tag ${{ secrets.DOCKER_USERNAME }}/docker-image .
         env:
+          DOCKER_USERNAME: your_docker_username
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           AWS_REGION: us-west-1
           ECR_REPOSITORY: docker-image-scan-poc
 
