@@ -19,10 +19,10 @@ jobs:
       - name: Build and tag Docker image
         run: |
           docker buildx create --use
-          docker buildx build --push --tag your-image-name .
+          docker buildx build --push --tag docker-image .
         env:
-          AWS_REGION: your-aws-region
-          ECR_REPOSITORY: your-ecr-repository
+          AWS_REGION: us-west-1
+          ECR_REPOSITORY: docker-image-scan-poc
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -37,9 +37,9 @@ jobs:
 
       - name: Log in to ECR
         run: |
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin 631415161171.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
       - name: Tag and push Docker image to ECR
         run: |
-          docker tag your-image-name:latest <AWS_ACCOUNT_ID>.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:latest
-          docker push <AWS_ACCOUNT_ID>.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:latest
+          docker tag your-image-name:latest 631415161171.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:latest
+          docker push 631415161171.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:latest
