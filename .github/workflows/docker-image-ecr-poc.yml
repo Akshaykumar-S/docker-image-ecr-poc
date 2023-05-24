@@ -1,47 +1,38 @@
-# name: Build and Push Docker Image
+name: Build and Push to ECR
 
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main
 
-# jobs:
-#   build-and-push:
-#     runs-on: ubuntu-latest
+env:
+  AWS_REGION: us-west-1
+  ECR_REPO: 631415161171.dkr.ecr.us-west-1.amazonaws.com/docker-image-scan-poc
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v2
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
 
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v1
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-#       - name: Build and tag Docker image
-#         run: |
-#           docker buildx create --use
-#           docker buildx build --push --tag ${{ secrets.DOCKER_USERNAME }}/docker-image .
-#         env:
-#           DOCKER_USERNAME: your_docker_username
-#           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-#           AWS_REGION: us-west-1
-#           ECR_REPOSITORY: docker-image-scan-poc
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-#       - name: Configure AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: AKIAZGA2GYFJZSDZMP75
-#           aws-secret-access-key: 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
-#           aws-region: ${{ env.AWS_REGION }}
+      - name: Build Docker image
+        run: docker build -t python:latest .
 
-#       - name: Enable image scanning in ECR
-#         run: |
-#           aws ecr put-image-scanning-configuration --repository-name ${{ env.ECR_REPOSITORY }} --image-scanning-configuration scanOnPush=true
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-#       - name: Log in to ECR
-#         run: |
-#           aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin 631415161171.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+      - name: Tag Docker image
+        run: docker tag python:latest ${{ env.ECR_REPO }}:latest
 
-#       - name: Tag and push Docker image to ECR
-#         run: |
-#           docker tag your-image-name:latest 631415161171.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:latest
-#           docker push 631415161171.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:latest
+      - name: Push Docker image to ECR
+        run: docker push ${{ env.ECR_REPO }}:latest
